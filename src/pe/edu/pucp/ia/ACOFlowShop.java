@@ -74,7 +74,7 @@ public class ACOFlowShop {
 
 	private void buildSolutions() {
 		for (Ant ant : antColony) {
-			while (ant.getCurrentIndex() < numberOfJobs - 1) {
+			while (ant.getCurrentIndex() < numberOfJobs) {
 				int nextNode = ant.selectNextNode(pheromoneTrails, graph);
 				ant.visitNode(nextNode);
 			}
