@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.Random;
 
 import pe.edu.pucp.ia.aco.Ant;
 import pe.edu.pucp.ia.config.ProblemConfiguration;
@@ -15,7 +14,7 @@ public class ACOFlowShop {
 	private double pheromoneTrails[][] = null;
 	private Ant antColony[] = null;
 
-	private int numberOfNodes;
+	private int numberOfJobs;
 	private int numberOfAnts;
 
 	public int[] bestTour;
@@ -23,80 +22,21 @@ public class ACOFlowShop {
 	public double bestTourLength;
 
 	public ACOFlowShop(double[][] graph) {
-		this.numberOfNodes = graph.length;
-		this.numberOfAnts = (int) (graph.length * ProblemConfiguration.NUM_ANT_FACTOR);
+		this.numberOfJobs = graph.length;
+		this.numberOfAnts = ProblemConfiguration.NUMBER_OF_ANTS;
 		this.graph = graph;
-		this.pheromoneTrails = new double[numberOfNodes][numberOfNodes];
+		this.pheromoneTrails = new double[numberOfJobs + 1][numberOfJobs + 1];
 		this.antColony = new Ant[numberOfAnts];
 		for (int j = 0; j < antColony.length; j++) {
-			antColony[j] = new Ant(numberOfNodes);
+			antColony[j] = new Ant(numberOfJobs + 1);
 		}
-	}
-
-	private void updatePheromoneTrails() {
-		for (int i = 0; i < numberOfNodes; i++) {
-			for (int j = 0; j < numberOfNodes; j++) {
-				pheromoneTrails[i][j] *= ProblemConfiguration.EVAPORATION;
-			}
-		}
-
-		for (Ant ant : antColony) {
-			double contribution = ProblemConfiguration.Q
-					/ ant.getTourLength(graph);
-			for (int i = 0; i < numberOfNodes - 1; i++) {
-				pheromoneTrails[ant.getTour()[i]][ant.getTour()[i + 1]] += contribution;
-			}
-			pheromoneTrails[ant.getTour()[numberOfNodes - 1]][ant.getTour()[0]] += contribution;
-		}
-	}
-
-	public static void main(String... args) {
-		try {
-			double[][] graph = getProblemGraphFromFile("/home/cptanalatriste/github/ACOFlowShop/src/tspadata1.txt");
-			ACOFlowShop acoFlowShop = new ACOFlowShop(graph);
-			acoFlowShop.solveProblem();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void buildSolutions() {
-		for (Ant ant : antColony) {
-			while (ant.getCurrentIndex() < numberOfNodes - 1) {
-				int nextNode = ant.selectNextNode(pheromoneTrails, graph);
-				ant.visitNode(nextNode);
-			}
-		}
-	}
-
-	private void initialize() {
-		Random random = new Random();
-		for (Ant ant : antColony) {
-			ant.setCurrentIndex(-1);
-			ant.clear();
-			ant.visitNode(random.nextInt(numberOfNodes));
-			ant.setCurrentIndex(0);
-		}
-	}
-
-	private Ant updateBestAnt() {
-		Ant bestAnt = antColony[0];
-		for (Ant ant : antColony) {
-			if (ant.getTourLength(graph) < bestAnt.getTourLength(graph)) {
-				bestAnt = ant;
-			}
-		}
-		bestTour = bestAnt.getTour().clone();
-		bestTourLength = bestAnt.getTourLength(graph);
-		bestTourAsString = bestAnt.tourToString();
-		return bestAnt;
 	}
 
 	public int[] solveProblem() {
-		for (int i = 0; i < numberOfNodes; i++) {
-			for (int j = 0; j < numberOfNodes; j++) {
+		for (int i = 0; i < numberOfJobs; i++) {
+			for (int j = 0; j < numberOfJobs; j++) {
+				// TODO (cgavidia): Apply MAX-MIN policy for initial pheromone
 				pheromoneTrails[i][j] = ProblemConfiguration.INITIAL_PHEROMONE;
-
 			}
 		}
 
@@ -109,9 +49,74 @@ public class ACOFlowShop {
 			iteration++;
 		}
 		System.out.println("Best tour length: "
-				+ (bestTourLength - numberOfNodes));
+				+ (bestTourLength - numberOfJobs));
 		System.out.println("Best tour:" + bestTourAsString);
 		return bestTour.clone();
+	}
+
+	private void updatePheromoneTrails() {
+		for (int i = 0; i < numberOfJobs; i++) {
+			for (int j = 0; j < numberOfJobs; j++) {
+				pheromoneTrails[i][j] *= ProblemConfiguration.EVAPORATION;
+			}
+		}
+
+		Ant bestAnt = getBestAnt();
+		double contribution = ProblemConfiguration.Q
+				/ bestAnt.getSolutionMakespan(graph);
+		for (int i = 0; i < numberOfJobs - 1; i++) {
+			pheromoneTrails[bestAnt.getSolution()[i]][bestAnt.getSolution()[i + 1]] += contribution;
+		}
+		pheromoneTrails[bestAnt.getSolution()[numberOfJobs - 1]][bestAnt
+				.getSolution()[0]] += contribution;
+
+	}
+
+	private void buildSolutions() {
+		for (Ant ant : antColony) {
+			while (ant.getCurrentIndex() < numberOfJobs - 1) {
+				int nextNode = ant.selectNextNode(pheromoneTrails, graph);
+				ant.visitNode(nextNode);
+			}
+		}
+	}
+
+	private void initialize() {
+		for (Ant ant : antColony) {
+			ant.setCurrentIndex(-1);
+			ant.clear();
+			ant.visitNode(0);
+			ant.setCurrentIndex(0);
+		}
+	}
+
+	private Ant getBestAnt() {
+		Ant bestAnt = antColony[0];
+		for (Ant ant : antColony) {
+			if (ant.getSolutionMakespan(graph) < bestAnt
+					.getSolutionMakespan(graph)) {
+				bestAnt = ant;
+			}
+		}
+		return bestAnt;
+	}
+
+	private Ant updateBestAnt() {
+		Ant bestAnt = getBestAnt();
+		bestTour = bestAnt.getSolution().clone();
+		bestTourLength = bestAnt.getSolutionMakespan(graph);
+		bestTourAsString = bestAnt.solutionAsString();
+		return bestAnt;
+	}
+
+	public static void main(String... args) {
+		try {
+			double[][] graph = getProblemGraphFromFile("/home/cptanalatriste/github/ACOFlowShop/src/flowshop_default.data");
+			ACOFlowShop acoFlowShop = new ACOFlowShop(graph);
+			acoFlowShop.solveProblem();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static double[][] getProblemGraphFromFile(String path)
@@ -123,22 +128,28 @@ public class ACOFlowShop {
 		int i = 0;
 
 		while ((line = buf.readLine()) != null) {
-			String splitA[] = line.split(" ");
-			LinkedList<String> split = new LinkedList<String>();
-			for (String s : splitA) {
-				if (!s.isEmpty()) {
-					split.add(s);
+			if (i > 0) {
+				String splitA[] = line.split(" ");
+				LinkedList<String> split = new LinkedList<String>();
+				for (String s : splitA) {
+					if (!s.isEmpty()) {
+						split.add(s);
+					}
 				}
-			}
+				int j = 0;
+				for (String s : split) {
+					if (!s.isEmpty()) {
+						graph[i - 1][j++] = Integer.parseInt(s) + 1;
+					}
+				}
+			} else {
+				String firstLine[] = line.split(" ");
+				String numberOfJobs = firstLine[0];
+				String numberOfMachines = firstLine[1];
 
-			if (graph == null) {
-				graph = new double[split.size()][split.size()];
-			}
-			int j = 0;
-
-			for (String s : split) {
-				if (!s.isEmpty()) {
-					graph[i][j++] = Double.parseDouble(s) + 1;
+				if (graph == null) {
+					graph = new double[Integer.parseInt(numberOfJobs)][Integer
+							.parseInt(numberOfMachines)];
 				}
 			}
 			i++;

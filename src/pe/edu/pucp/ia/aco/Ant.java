@@ -7,16 +7,16 @@ import pe.edu.pucp.ia.config.ProblemConfiguration;
 public class Ant {
 
 	private int currentIndex = 0;
-	private int tour[];
+	private int solution[];
 	public boolean visited[];
 
 	public Ant(int graphLenght) {
-		this.tour = new int[graphLenght];
+		this.solution = new int[graphLenght];
 		this.visited = new boolean[graphLenght];
 	}
 
 	public void visitNode(int visitedNode) {
-		tour[currentIndex + 1] = visitedNode;
+		solution[currentIndex + 1] = visitedNode;
 		visited[visitedNode] = true;
 		currentIndex++;
 	}
@@ -29,15 +29,11 @@ public class Ant {
 		int nextNode = 0;
 		Random random = new Random();
 		if (random.nextDouble() < ProblemConfiguration.RANDOM_SELECTION_PROBABILITY) {
-			int t = random.nextInt(graph.length - currentIndex);
-			int j = -1;
+			int jobWithMaximumPheromone = 0;
 			for (int i = 0; i < graph.length; i++) {
-				if (!isNodeVisited(i)) {
-					j++;
-				}
-				if (j == t) {
-					nextNode = i;
-					return nextNode;
+				double currentJobPheromone = trails[i][currentIndex];
+				if (currentJobPheromone > jobWithMaximumPheromone) {
+					jobWithMaximumPheromone = i;
 				}
 			}
 		} else {
@@ -55,33 +51,26 @@ public class Ant {
 		return nextNode;
 	}
 
-	public int[] getTour() {
-		return tour;
+	public int[] getSolution() {
+		return solution;
 	}
 
 	private double[] getProbabilities(double[][] trails, double[][] graph) {
-		double probabilities[] = new double[tour.length];
-		int currentNode = tour[currentIndex];
+		double probabilities[] = new double[solution.length];
 
 		double denom = 0.0;
 		for (int l = 0; l < graph.length; l++) {
 			if (!isNodeVisited(l)) {
-				denom += Math.pow(trails[currentNode][l],
-						ProblemConfiguration.ALPHA)
-						* Math.pow(1.0 / graph[currentNode][l],
-								ProblemConfiguration.BETA);
+				denom += trails[l][currentIndex];
 
 			}
 		}
 
-		for (int j = 0; j < tour.length; j++) {
+		for (int j = 0; j < solution.length; j++) {
 			if (isNodeVisited(j)) {
 				probabilities[j] = 0.0;
 			} else {
-				double numerator = Math.pow(trails[currentNode][j],
-						ProblemConfiguration.ALPHA)
-						* Math.pow(1.0 / graph[currentNode][j],
-								ProblemConfiguration.BETA);
+				double numerator = trails[j][currentIndex];
 				probabilities[j] = numerator / denom;
 			}
 		}
@@ -103,18 +92,34 @@ public class Ant {
 		return currentIndex;
 	}
 
-	public double getTourLength(double[][] graph) {
-		double length = graph[tour[graph.length - 1]][tour[0]];
-		for (int i = 0; i < graph.length - 1; i++) {
-			length += graph[tour[i]][tour[i + 1]];
+	public double getSolutionMakespan(double[][] graph) {
+		int machines = graph[0].length;
+		double[] machinesTime = new double[machines];
+		double tiempo = 0;
+
+		for (int job : solution) {
+			for (int i = 0; i < machines; i++) {
+				tiempo = graph[job][i];
+				// tiempo = graph[job - 1][i];
+				if (i == 0) {
+					machinesTime[i] = machinesTime[i] + tiempo;
+				} else {
+					if (machinesTime[i] > machinesTime[i - 1]) {
+						machinesTime[i] = machinesTime[i] + tiempo;
+					} else {
+						machinesTime[i] = machinesTime[i - 1] + tiempo;
+					}
+				}
+			}
 		}
-		return length;
+		return machinesTime[machines - 1];
 	}
 
-	public String tourToString() {
-		String t = new String();
-		for (int i : tour)
-			t = t + " " + i;
-		return t;
+	public String solutionAsString() {
+		String solutionString = new String();
+		for (int i = 1; i < solution.length; i++) {
+			solutionString = solutionString + " " + solution[i];
+		}
+		return solutionString;
 	}
 }

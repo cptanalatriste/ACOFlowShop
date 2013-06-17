@@ -2,7 +2,7 @@ package pe.edu.pucp.ia.config;
 
 public class ProblemConfiguration {
 
-	public static final double NUM_ANT_FACTOR = 0.8;
+	public static final int NUMBER_OF_ANTS = 1;
 	public static final double RANDOM_SELECTION_PROBABILITY = 0.01;
 	public static final double ALPHA = 1;
 	public static final double BETA = 5;
