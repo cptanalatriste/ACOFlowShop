@@ -1,4 +1,4 @@
-package pe.edu.pucp.ia.config;
+package pe.edu.pucp.ia.aco.config;
 
 public class ProblemConfiguration {
 

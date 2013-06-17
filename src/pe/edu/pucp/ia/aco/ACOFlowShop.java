@@ -1,12 +1,11 @@
-package pe.edu.pucp.ia;
+package pe.edu.pucp.ia.aco;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 
-import pe.edu.pucp.ia.aco.Ant;
-import pe.edu.pucp.ia.config.ProblemConfiguration;
+import pe.edu.pucp.ia.aco.config.ProblemConfiguration;
 
 public class ACOFlowShop {
 

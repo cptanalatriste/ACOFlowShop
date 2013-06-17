@@ -2,7 +2,7 @@ package pe.edu.pucp.ia.aco;
 
 import java.util.Random;
 
-import pe.edu.pucp.ia.config.ProblemConfiguration;
+import pe.edu.pucp.ia.aco.config.ProblemConfiguration;
 
 public class Ant {
 
@@ -59,7 +59,7 @@ public class Ant {
 		double probabilities[] = new double[solution.length];
 
 		double denom = 0.0;
-		for (int l = 0; l < graph.length; l++) {
+		for (int l = 0; l < trails.length; l++) {
 			if (!isNodeVisited(l)) {
 				denom += trails[l][currentIndex];
 
