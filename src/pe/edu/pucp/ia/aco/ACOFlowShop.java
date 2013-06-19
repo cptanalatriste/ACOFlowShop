@@ -35,7 +35,7 @@ public class ACOFlowShop {
 		for (int i = 0; i < numberOfJobs; i++) {
 			for (int j = 0; j < numberOfJobs; j++) {
 				// TODO (cgavidia): Apply MAX-MIN policy for initial pheromone
-				pheromoneTrails[i][j] = ProblemConfiguration.INITIAL_PHEROMONE;
+				pheromoneTrails[i][j] = ProblemConfiguration.MAXIMUM_PHEROMONE;
 			}
 		}
 
@@ -56,7 +56,13 @@ public class ACOFlowShop {
 	private void updatePheromoneTrails() {
 		for (int i = 0; i < numberOfJobs; i++) {
 			for (int j = 0; j < numberOfJobs; j++) {
-				pheromoneTrails[i][j] *= ProblemConfiguration.EVAPORATION;
+				double newValue = pheromoneTrails[i][j]
+						* ProblemConfiguration.EVAPORATION;
+				if (newValue >= ProblemConfiguration.MINIMUM_PHEROMONE) {
+					pheromoneTrails[i][j] = newValue;
+				} else {
+					pheromoneTrails[i][j] = ProblemConfiguration.MINIMUM_PHEROMONE;
+				}
 			}
 		}
 
@@ -64,7 +70,13 @@ public class ACOFlowShop {
 		double contribution = ProblemConfiguration.Q
 				/ bestAnt.getSolutionMakespan(graph);
 		for (int i = 0; i < numberOfJobs; i++) {
-			pheromoneTrails[bestAnt.getSolution()[i]][i] += contribution;
+			double newValue = pheromoneTrails[bestAnt.getSolution()[i]][i]
+					+ contribution;
+			if (newValue <= ProblemConfiguration.MAXIMUM_PHEROMONE) {
+				pheromoneTrails[bestAnt.getSolution()[i]][i] = newValue;
+			} else {
+				pheromoneTrails[bestAnt.getSolution()[i]][i] = ProblemConfiguration.MAXIMUM_PHEROMONE;
+			}
 		}
 	}
 
