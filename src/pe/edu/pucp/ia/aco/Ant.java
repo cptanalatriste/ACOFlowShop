@@ -105,7 +105,6 @@ public class Ant {
 		for (int job : solution) {
 			for (int i = 0; i < machines; i++) {
 				tiempo = graph[job][i];
-				// tiempo = graph[job - 1][i];
 				if (i == 0) {
 					machinesTime[i] = machinesTime[i] + tiempo;
 				} else {
