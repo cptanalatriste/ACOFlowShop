@@ -16,7 +16,7 @@ public class Ant {
 	}
 
 	public void visitNode(int visitedNode) {
-		solution[currentIndex + 1] = visitedNode;
+		solution[currentIndex] = visitedNode;
 		visited[visitedNode] = true;
 		currentIndex++;
 	}
@@ -117,7 +117,7 @@ public class Ant {
 
 	public String solutionAsString() {
 		String solutionString = new String();
-		for (int i = 1; i < solution.length; i++) {
+		for (int i = 0; i < solution.length; i++) {
 			solutionString = solutionString + " " + solution[i];
 		}
 		return solutionString;

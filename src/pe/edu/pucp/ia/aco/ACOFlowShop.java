@@ -18,16 +18,16 @@ public class ACOFlowShop {
 
 	public int[] bestTour;
 	String bestTourAsString = "";
-	public double bestTourLength;
+	public double bestTourLength = -1.0;
 
 	public ACOFlowShop(double[][] graph) {
 		this.numberOfJobs = graph.length;
 		this.numberOfAnts = ProblemConfiguration.NUMBER_OF_ANTS;
 		this.graph = graph;
-		this.pheromoneTrails = new double[numberOfJobs + 1][numberOfJobs + 1];
+		this.pheromoneTrails = new double[numberOfJobs][numberOfJobs];
 		this.antColony = new Ant[numberOfAnts];
 		for (int j = 0; j < antColony.length; j++) {
-			antColony[j] = new Ant(numberOfJobs + 1);
+			antColony[j] = new Ant(numberOfJobs);
 		}
 	}
 
@@ -63,29 +63,29 @@ public class ACOFlowShop {
 		Ant bestAnt = getBestAnt();
 		double contribution = ProblemConfiguration.Q
 				/ bestAnt.getSolutionMakespan(graph);
-		for (int i = 0; i < numberOfJobs - 1; i++) {
-			pheromoneTrails[bestAnt.getSolution()[i]][bestAnt.getSolution()[i + 1]] += contribution;
+		for (int i = 0; i < numberOfJobs; i++) {
+			pheromoneTrails[bestAnt.getSolution()[i]][bestAnt.getSolution()[i]] += contribution;
 		}
-		pheromoneTrails[bestAnt.getSolution()[numberOfJobs - 1]][bestAnt
-				.getSolution()[0]] += contribution;
-
 	}
 
 	private void buildSolutions() {
 		for (Ant ant : antColony) {
+			System.out.println("numberOfJobs: " + numberOfJobs);
 			while (ant.getCurrentIndex() < numberOfJobs) {
+				System.out.println("ant.getCurrentIndex(): "
+						+ ant.getCurrentIndex());
 				int nextNode = ant.selectNextNode(pheromoneTrails, graph);
 				ant.visitNode(nextNode);
+				System.out.println("ant.solutionAsString(): "
+						+ ant.solutionAsString());
 			}
 		}
 	}
 
 	private void initialize() {
 		for (Ant ant : antColony) {
-			ant.setCurrentIndex(-1);
-			ant.clear();
-			ant.visitNode(0);
 			ant.setCurrentIndex(0);
+			ant.clear();
 		}
 	}
 
@@ -102,9 +102,12 @@ public class ACOFlowShop {
 
 	private Ant updateBestAnt() {
 		Ant bestAnt = getBestAnt();
-		bestTour = bestAnt.getSolution().clone();
-		bestTourLength = bestAnt.getSolutionMakespan(graph);
-		bestTourAsString = bestAnt.solutionAsString();
+		if (bestTour == null
+				|| bestTourLength > bestAnt.getSolutionMakespan(graph)) {
+			bestTour = bestAnt.getSolution().clone();
+			bestTourLength = bestAnt.getSolutionMakespan(graph);
+			bestTourAsString = bestAnt.solutionAsString();
+		}
 		return bestAnt;
 	}
 
