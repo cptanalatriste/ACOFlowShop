@@ -64,7 +64,7 @@ public class ACOFlowShop {
 		double contribution = ProblemConfiguration.Q
 				/ bestAnt.getSolutionMakespan(graph);
 		for (int i = 0; i < numberOfJobs; i++) {
-			pheromoneTrails[bestAnt.getSolution()[i]][bestAnt.getSolution()[i]] += contribution;
+			pheromoneTrails[bestAnt.getSolution()[i]][i] += contribution;
 		}
 	}
 

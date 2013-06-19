@@ -2,8 +2,6 @@ package pe.edu.pucp.ia.aco;
 
 import java.util.Random;
 
-import pe.edu.pucp.ia.aco.config.ProblemConfiguration;
-
 public class Ant {
 
 	private int currentIndex = 0;
@@ -28,19 +26,24 @@ public class Ant {
 	public int selectNextNode(double[][] trails, double[][] graph) {
 		int nextNode = 0;
 		Random random = new Random();
-		if (random.nextDouble() < ProblemConfiguration.RANDOM_SELECTION_PROBABILITY) {
+		// Probability Setting from Paper
+		double randomValue = random.nextDouble();
+		double bestChoiceProbability = ((double) graph.length - 4)
+				/ graph.length;
+		if (randomValue < bestChoiceProbability) {
 			double currentMaximumFeromone = -1;
 			for (int i = 0; i < graph.length; i++) {
+				double currentFeromone = trails[i][currentIndex];
 				if (!isNodeVisited(i)
-						&& trails[i][currentIndex] > currentMaximumFeromone) {
+						&& currentFeromone > currentMaximumFeromone) {
 					nextNode = i;
-					currentMaximumFeromone = trails[i][currentIndex];
+					currentMaximumFeromone = currentFeromone;
 				}
 			}
 			return nextNode;
 		} else {
 			double probabilities[] = getProbabilities(trails, graph);
-			double r = random.nextDouble();
+			double r = randomValue;
 			double total = 0;
 			for (int i = 0; i < graph.length; i++) {
 				total += probabilities[i];
