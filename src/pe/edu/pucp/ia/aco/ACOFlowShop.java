@@ -141,7 +141,7 @@ public class ACOFlowShop {
 				int j = 0;
 				for (String s : split) {
 					if (!s.isEmpty()) {
-						graph[i - 1][j++] = Integer.parseInt(s) + 1;
+						graph[i - 1][j++] = Integer.parseInt(s);
 					}
 				}
 			} else {
