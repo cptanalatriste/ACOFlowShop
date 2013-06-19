@@ -6,7 +6,7 @@ public class ProblemConfiguration {
 	public static final double ALPHA = 1;
 	public static final double BETA = 5;
 	public static final double EVAPORATION = 0.5;
-	public static final int Q = 500;
+	public static final int Q = 1;
 	public static final double INITIAL_PHEROMONE = 1.0;
-	public static final int MAX_ITERATIONS = 20;
+	public static final int MAX_ITERATIONS = 2000;
 }
