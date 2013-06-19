@@ -9,5 +9,5 @@ public class ProblemConfiguration {
 	public static final double EVAPORATION = 0.5;
 	public static final int Q = 500;
 	public static final double INITIAL_PHEROMONE = 1.0;
-	public static final int MAX_ITERATIONS = 2000;
+	public static final int MAX_ITERATIONS = 25;
 }

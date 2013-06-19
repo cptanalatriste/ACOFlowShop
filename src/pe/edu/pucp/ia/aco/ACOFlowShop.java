@@ -70,14 +70,13 @@ public class ACOFlowShop {
 
 	private void buildSolutions() {
 		for (Ant ant : antColony) {
-			System.out.println("numberOfJobs: " + numberOfJobs);
 			while (ant.getCurrentIndex() < numberOfJobs) {
-				System.out.println("ant.getCurrentIndex(): "
-						+ ant.getCurrentIndex());
 				int nextNode = ant.selectNextNode(pheromoneTrails, graph);
 				ant.visitNode(nextNode);
+			}
+			if (ant.isValidSolution()) {
 				System.out.println("ant.solutionAsString(): "
-						+ ant.solutionAsString());
+						+ ant.getSolutionAsString());
 			}
 		}
 	}
@@ -106,7 +105,7 @@ public class ACOFlowShop {
 				|| bestTourLength > bestAnt.getSolutionMakespan(graph)) {
 			bestTour = bestAnt.getSolution().clone();
 			bestTourLength = bestAnt.getSolutionMakespan(graph);
-			bestTourAsString = bestAnt.solutionAsString();
+			bestTourAsString = bestAnt.getSolutionAsString();
 		}
 		return bestAnt;
 	}

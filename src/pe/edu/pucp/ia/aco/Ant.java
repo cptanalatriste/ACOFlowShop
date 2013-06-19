@@ -29,13 +29,15 @@ public class Ant {
 		int nextNode = 0;
 		Random random = new Random();
 		if (random.nextDouble() < ProblemConfiguration.RANDOM_SELECTION_PROBABILITY) {
-			int jobWithMaximumPheromone = 0;
+			double currentMaximumFeromone = -1;
 			for (int i = 0; i < graph.length; i++) {
-				double currentJobPheromone = trails[i][currentIndex];
-				if (currentJobPheromone > jobWithMaximumPheromone) {
-					jobWithMaximumPheromone = i;
+				if (!isNodeVisited(i)
+						&& trails[i][currentIndex] > currentMaximumFeromone) {
+					nextNode = i;
+					currentMaximumFeromone = trails[i][currentIndex];
 				}
 			}
+			return nextNode;
 		} else {
 			double probabilities[] = getProbabilities(trails, graph);
 			double r = random.nextDouble();
@@ -115,11 +117,22 @@ public class Ant {
 		return machinesTime[machines - 1];
 	}
 
-	public String solutionAsString() {
+	public String getSolutionAsString() {
 		String solutionString = new String();
 		for (int i = 0; i < solution.length; i++) {
 			solutionString = solutionString + " " + solution[i];
 		}
 		return solutionString;
+	}
+
+	public boolean isValidSolution() {
+		boolean isValid = true;
+		for (int i = 0; i < visited.length; i++) {
+			if (visited[i] == false) {
+				throw new RuntimeException("Incomplete tour: "
+						+ getSolutionAsString());
+			}
+		}
+		return isValid;
 	}
 }
