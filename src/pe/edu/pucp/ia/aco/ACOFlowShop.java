@@ -48,7 +48,7 @@ public class ACOFlowShop {
 			iteration++;
 		}
 		System.out.println("Best tour length: "
-				+ (bestTourLength - numberOfJobs));
+				+ bestTourLength);
 		System.out.println("Best tour:" + bestTourAsString);
 		return bestTour.clone();
 	}
