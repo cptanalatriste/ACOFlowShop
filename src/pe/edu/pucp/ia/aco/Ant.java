@@ -1,5 +1,7 @@
 package pe.edu.pucp.ia.aco;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Ant {
@@ -118,6 +120,48 @@ public class Ant {
 		}
 		return machinesTime[machines - 1];
 	}
+        
+        public int[] getLocalSolution(double makespan, int[] jobs, double[][] graph){
+            int[] localSolutionJobs = new int[jobs.length];
+            List<Integer> jobsList = new ArrayList<Integer>();
+            
+            for (int job:jobs){
+                jobsList.add(job);
+            }
+            
+            List<Integer> localSolution = jobsList;
+          
+            int indexI = 0;
+            boolean lessMakespan = true;
+            
+            while (indexI<(jobs.length) && lessMakespan){
+                int jobI = localSolution.get(indexI);
+                localSolution.remove(indexI);
+                int indexJ=0;
+                while (indexJ<jobs.length && lessMakespan){
+                    localSolution.add(indexJ, jobI);
+                    //Transformar a Arreglo para hallar el makespan de la nueva permutación
+                    localSolution.toArray();
+                    double newMakespan = getSolutionMakespan(graph);
+                    
+                    if (newMakespan < makespan){
+                        makespan = newMakespan;
+                        lessMakespan = false;
+                    }else{
+                        localSolution.remove(indexJ);
+                    }
+                }
+                indexI++;
+            }
+            
+            int k=0;
+            for (int job:localSolution){
+                localSolutionJobs[k] = job;
+                k++;
+            }
+            
+            return localSolutionJobs;
+        }
 
 	public String getSolutionAsString() {
 		String solutionString = new String();
