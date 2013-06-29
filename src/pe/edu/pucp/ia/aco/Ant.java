@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import pe.edu.pucp.ia.flowshop.util.FlowShopUtils;
+
 public class Ant {
 
 	private int currentIndex = 0;
@@ -100,25 +102,7 @@ public class Ant {
 	}
 
 	public double getSolutionMakespan(double[][] graph) {
-		int machines = graph[0].length;
-		double[] machinesTime = new double[machines];
-		double tiempo = 0;
-
-		for (int job : solution) {
-			for (int i = 0; i < machines; i++) {
-				tiempo = graph[job][i];
-				if (i == 0) {
-					machinesTime[i] = machinesTime[i] + tiempo;
-				} else {
-					if (machinesTime[i] > machinesTime[i - 1]) {
-						machinesTime[i] = machinesTime[i] + tiempo;
-					} else {
-						machinesTime[i] = machinesTime[i - 1] + tiempo;
-					}
-				}
-			}
-		}
-		return machinesTime[machines - 1];
+		return FlowShopUtils.getScheduleMakespan(solution, graph);
 	}
 
 	public void improveSolution(double[][] graph) {
