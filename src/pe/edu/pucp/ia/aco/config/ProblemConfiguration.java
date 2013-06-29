@@ -2,7 +2,7 @@ package pe.edu.pucp.ia.aco.config;
 
 public class ProblemConfiguration {
 
-	public static final int NUMBER_OF_ANTS = 2;
+	public static final int NUMBER_OF_ANTS = 1;
 	public static final double ALPHA = 1;
 	public static final double BETA = 5;
 	public static final double EVAPORATION = 0.5;
