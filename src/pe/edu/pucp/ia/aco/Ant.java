@@ -1,5 +1,7 @@
 package pe.edu.pucp.ia.aco;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Ant {
@@ -60,10 +62,6 @@ public class Ant {
 		return solution;
 	}
 
-	public void setSolution(int[] solution) {
-		this.solution = solution;
-	}
-
 	private double[] getProbabilities(double[][] trails, double[][] graph) {
 		double probabilities[] = new double[solution.length];
 
@@ -99,6 +97,72 @@ public class Ant {
 
 	public int getCurrentIndex() {
 		return currentIndex;
+	}
+
+	public double getSolutionMakespan(double[][] graph) {
+		int machines = graph[0].length;
+		double[] machinesTime = new double[machines];
+		double tiempo = 0;
+
+		for (int job : solution) {
+			for (int i = 0; i < machines; i++) {
+				tiempo = graph[job][i];
+				if (i == 0) {
+					machinesTime[i] = machinesTime[i] + tiempo;
+				} else {
+					if (machinesTime[i] > machinesTime[i - 1]) {
+						machinesTime[i] = machinesTime[i] + tiempo;
+					} else {
+						machinesTime[i] = machinesTime[i - 1] + tiempo;
+					}
+				}
+			}
+		}
+		return machinesTime[machines - 1];
+	}
+
+	public void improveSolution(double[][] graph) {
+		double makespan = getSolutionMakespan(graph);
+
+		int[] localSolutionJobs = new int[solution.length];
+		List<Integer> jobsList = new ArrayList<Integer>();
+
+		for (int job : solution) {
+			jobsList.add(job);
+		}
+
+		List<Integer> localSolution = jobsList;
+
+		int indexI = 0;
+		boolean lessMakespan = true;
+
+		while (indexI < (solution.length) && lessMakespan) {
+			int jobI = localSolution.get(indexI);
+			localSolution.remove(indexI);
+			int indexJ = 0;
+			while (indexJ < solution.length && lessMakespan) {
+				localSolution.add(indexJ, jobI);
+				// Transformar a Arreglo para hallar el makespan de la nueva
+				// permutación
+				localSolution.toArray();
+				double newMakespan = getSolutionMakespan(graph);
+
+				if (newMakespan < makespan) {
+					makespan = newMakespan;
+					lessMakespan = false;
+				} else {
+					localSolution.remove(indexJ);
+				}
+			}
+			indexI++;
+		}
+
+		int k = 0;
+		for (int job : localSolution) {
+			localSolutionJobs[k] = job;
+			k++;
+		}
+		solution = localSolutionJobs;
 	}
 
 	public String getSolutionAsString() {
