@@ -107,29 +107,48 @@ public class Ant {
 
 	public void improveSolution(double[][] graph) {
 		double makespan = getSolutionMakespan(graph);
-
-		int[] localSolutionJobs = new int[solution.length];
-		List<Integer> jobsList = new ArrayList<Integer>();
+                
+                System.out.println(getSolutionAsString());
+                System.out.println("makeSpan:"+makespan);
+                
+		int[] localSolutionJobs = new int[solution.length];  //solucion local a calcular
+		List<Integer> jobsList = new ArrayList<Integer>();   //lista de jobs inicial
 
 		for (int job : solution) {
 			jobsList.add(job);
 		}
 
-		List<Integer> localSolution = jobsList;
+		List<Integer> localSolution = jobsList;   //solucion local donde se quitan y agregan trabajos
 
 		int indexI = 0;
 		boolean lessMakespan = true;
 
 		while (indexI < (solution.length) && lessMakespan) {
+                        localSolution = jobsList;
+                        System.out.println("indexI:"+indexI);
 			int jobI = localSolution.get(indexI);
 			localSolution.remove(indexI);
 			int indexJ = 0;
+                        System.out.println("indexJ:"+indexJ);
 			while (indexJ < solution.length && lessMakespan) {
 				localSolution.add(indexJ, jobI);
-				// Transformar a Arreglo para hallar el makespan de la nueva
-				// permutación
-				localSolution.toArray();
-				double newMakespan = getSolutionMakespan(graph);
+				
+                                int[] intermediateSolution = new int[solution.length];
+                                int t=0;
+                                for(int sol:localSolution){
+                                    intermediateSolution[t] = sol;
+                                    t++;
+                                }
+                                
+                                System.out.println("intermediateSolution.length:"+intermediateSolution.length);
+                                
+                                for(int o=0;o<intermediateSolution.length;o++){
+                                    System.out.print("|"+intermediateSolution[o]+"|");
+                                }
+                                
+				double newMakespan = FlowShopUtils.getScheduleMakespan(intermediateSolution, graph);
+                                
+                                System.out.println("newMakespan:"+newMakespan);
 
 				if (newMakespan < makespan) {
 					makespan = newMakespan;
@@ -137,6 +156,8 @@ public class Ant {
 				} else {
 					localSolution.remove(indexJ);
 				}
+                                
+                                indexJ++;
 			}
 			indexI++;
 		}
