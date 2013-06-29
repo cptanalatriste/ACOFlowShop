@@ -3,7 +3,9 @@ package pe.edu.pucp.ia.aco;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import pe.edu.pucp.ia.aco.config.ProblemConfiguration;
 
@@ -47,8 +49,7 @@ public class ACOFlowShop {
 			updateBestAnt();
 			iteration++;
 		}
-		System.out.println("Best tour length: "
-				+ bestTourLength);
+		System.out.println("Best tour length: " + bestTourLength);
 		System.out.println("Best tour:" + bestTourAsString);
 		return bestTour.clone();
 	}
@@ -68,7 +69,7 @@ public class ACOFlowShop {
 
 		Ant bestAnt = getBestAnt();
 		double contribution = ProblemConfiguration.Q
-				/ bestAnt.getSolutionMakespan(graph);
+				/ getSolutionMakespan(bestAnt.getSolution(), graph);
 		for (int i = 0; i < numberOfJobs; i++) {
 			double newValue = pheromoneTrails[bestAnt.getSolution()[i]][i]
 					+ contribution;
@@ -90,6 +91,9 @@ public class ACOFlowShop {
 				System.out.println("ant.solutionAsString(): "
 						+ ant.getSolutionAsString());
 			}
+			ant.setSolution(getLocalSolution(
+					getSolutionMakespan(ant.getSolution(), graph),
+					ant.getSolution(), graph));
 		}
 	}
 
@@ -103,8 +107,8 @@ public class ACOFlowShop {
 	private Ant getBestAnt() {
 		Ant bestAnt = antColony[0];
 		for (Ant ant : antColony) {
-			if (ant.getSolutionMakespan(graph) < bestAnt
-					.getSolutionMakespan(graph)) {
+			if (getSolutionMakespan(ant.getSolution(), graph) < getSolutionMakespan(
+					bestAnt.getSolution(), graph)) {
 				bestAnt = ant;
 			}
 		}
@@ -114,9 +118,10 @@ public class ACOFlowShop {
 	private Ant updateBestAnt() {
 		Ant bestAnt = getBestAnt();
 		if (bestTour == null
-				|| bestTourLength > bestAnt.getSolutionMakespan(graph)) {
+				|| bestTourLength > getSolutionMakespan(bestAnt.getSolution(),
+						graph)) {
 			bestTour = bestAnt.getSolution().clone();
-			bestTourLength = bestAnt.getSolutionMakespan(graph);
+			bestTourLength = getSolutionMakespan(bestAnt.getSolution(), graph);
 			bestTourAsString = bestAnt.getSolutionAsString();
 		}
 		return bestAnt;
@@ -130,6 +135,74 @@ public class ACOFlowShop {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public int[] getLocalSolution(double makespan, int[] jobs, double[][] graph) {
+		int[] localSolutionJobs = new int[jobs.length];
+		List<Integer> jobsList = new ArrayList<Integer>();
+
+		for (int job : jobs) {
+			jobsList.add(job);
+		}
+
+		List<Integer> localSolution = jobsList;
+
+		int indexI = 0;
+		boolean lessMakespan = true;
+		try{
+			while (indexI < (jobs.length) && lessMakespan) {
+				int jobI = localSolution.get(indexI);
+				localSolution.remove(indexI);
+				int indexJ = 0;
+				while (indexJ < jobs.length && lessMakespan) {
+					localSolution.add(indexJ, jobI);
+					// Transformar a Arreglo para hallar el makespan de la nueva
+					// permutación
+					localSolution.toArray();
+					double newMakespan = getSolutionMakespan(jobs, graph);
+	
+					if (newMakespan < makespan) {
+						makespan = newMakespan;
+						lessMakespan = false;
+					} else {
+						localSolution.remove(indexJ);
+					}
+				}
+				indexI++;
+			}
+	
+			int k = 0;
+			for (int job : localSolution) {
+				localSolutionJobs[k] = job;
+				k++;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+		return localSolutionJobs;
+	}
+
+	public double getSolutionMakespan(int[] solution, double[][] graph) {
+		int machines = graph[0].length;
+		double[] machinesTime = new double[machines];
+		double tiempo = 0;
+
+		for (int job : solution) {
+			for (int i = 0; i < machines; i++) {
+				tiempo = graph[job][i];
+				if (i == 0) {
+					machinesTime[i] = machinesTime[i] + tiempo;
+				} else {
+					if (machinesTime[i] > machinesTime[i - 1]) {
+						machinesTime[i] = machinesTime[i] + tiempo;
+					} else {
+						machinesTime[i] = machinesTime[i - 1] + tiempo;
+					}
+				}
+			}
+		}
+		return machinesTime[machines - 1];
 	}
 
 	public static double[][] getProblemGraphFromFile(String path)
