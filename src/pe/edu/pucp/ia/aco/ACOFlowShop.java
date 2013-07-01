@@ -3,6 +3,7 @@ package pe.edu.pucp.ia.aco;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Date;
 import java.util.LinkedList;
 
 import javax.swing.UnsupportedLookAndFeelException;
@@ -52,7 +53,13 @@ public class ACOFlowShop {
 			System.out.println("Data file: " + fileDataset);
 			double[][] graph = getProblemGraphFromFile(fileDataset);
 			ACOFlowShop acoFlowShop = new ACOFlowShop(graph);
+			System.out.println("Starting computation at: " + new Date());
+			long startTime = System.nanoTime();
 			acoFlowShop.solveProblem();
+			long endTime = System.nanoTime();
+			System.out.println("Finishing computation at: " + new Date());
+			System.out.println("Duration (in seconds): "
+					+ ((double) (endTime - startTime) / 1000000000.0));
 			acoFlowShop.showSolution();
 		} catch (Exception e) {
 			e.printStackTrace();

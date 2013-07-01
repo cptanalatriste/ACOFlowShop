@@ -3,8 +3,8 @@ package pe.edu.pucp.ia.aco.config;
 /**
  * Parameter settings for the algorithm.
  * 
- * @author Adrián Pareja (adrian@pareja.com)
  * @author Carlos G. Gavidia (cgavidia@acm.org)
+ * @author Adrián Pareja (adrian@pareja.com)
  */
 public class ProblemConfiguration {
 
