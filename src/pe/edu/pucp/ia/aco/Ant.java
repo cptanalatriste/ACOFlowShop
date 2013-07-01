@@ -107,40 +107,38 @@ public class Ant {
 
 	public void improveSolution(double[][] graph) {
 		double makespan = getSolutionMakespan(graph);
-                
-                System.out.println(getSolutionAsString());
-                System.out.println("makeSpan:"+makespan);
-                
-		int[] localSolutionJobs = new int[solution.length];  //solucion local que se devuelve
-		List<Integer> jobsList = new ArrayList<Integer>();   //lista de jobs inicial
+
+		int[] localSolutionJobs = new int[solution.length];
+		List<Integer> jobsList = new ArrayList<Integer>();
 
 		for (int job : solution) {
 			jobsList.add(job);
 		}
 
-		List<Integer> localSolution = jobsList;   //solucion local donde se quitan y agregan trabajos
+		List<Integer> localSolution = jobsList;
 
 		int indexI = 0;
 		boolean lessMakespan = true;
 
 		while (indexI < (solution.length) && lessMakespan) {
 			int jobI = localSolution.get(indexI);
-                      
+
 			localSolution.remove(indexI);
-                        
+
 			int indexJ = 0;
-                        
+
 			while (indexJ < solution.length && lessMakespan) {
 				localSolution.add(indexJ, jobI);
-				
-                                int[] intermediateSolution = new int[solution.length];
-                                int t=0;
-                                for(int sol:localSolution){
-                                    intermediateSolution[t] = sol;
-                                    t++;
-                                }
-                                
-				double newMakespan = FlowShopUtils.getScheduleMakespan(intermediateSolution, graph);
+
+				int[] intermediateSolution = new int[solution.length];
+				int t = 0;
+				for (int sol : localSolution) {
+					intermediateSolution[t] = sol;
+					t++;
+				}
+
+				double newMakespan = FlowShopUtils.getScheduleMakespan(
+						intermediateSolution, graph);
 
 				if (newMakespan < makespan) {
 					makespan = newMakespan;
@@ -148,12 +146,12 @@ public class Ant {
 				} else {
 					localSolution.remove(indexJ);
 				}
-                                
-                                indexJ++;
+
+				indexJ++;
 			}
-                        if (lessMakespan){
-                            localSolution.add(indexI,jobI);
-                        }
+			if (lessMakespan) {
+				localSolution.add(indexI, jobI);
+			}
 			indexI++;
 		}
 

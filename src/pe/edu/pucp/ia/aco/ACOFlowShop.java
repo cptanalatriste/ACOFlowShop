@@ -17,12 +17,14 @@ public class ACOFlowShop {
 	private int numberOfAnts;
 
 	public int[] bestTour;
-	String bestTourAsString = "";
-	public double bestTourLength = -1.0;
+	String bestScheduleAsString = "";
+	public double bestScheduleMakespan = -1.0;
 
 	public ACOFlowShop(double[][] graph) {
 		this.numberOfJobs = graph.length;
+		System.out.println("Number of Jobs: " + numberOfJobs);
 		this.numberOfAnts = ProblemConfiguration.NUMBER_OF_ANTS;
+		System.out.println("Number of Ants in Colony: " + numberOfAnts);
 		this.graph = graph;
 		this.pheromoneTrails = new double[numberOfJobs][numberOfJobs];
 		this.antColony = new Ant[numberOfAnts];
@@ -31,28 +33,64 @@ public class ACOFlowShop {
 		}
 	}
 
+	public static void main(String... args) {
+		System.out.println("ACO FOR FLOW SHOP SCHEDULLING");
+		System.out.println("=============================");
+
+		try {
+			String fileDataset = ProblemConfiguration.FILE_DATASET;
+			System.out.println("Data file: " + fileDataset);
+			double[][] graph = getProblemGraphFromFile(fileDataset);
+			ACOFlowShop acoFlowShop = new ACOFlowShop(graph);
+			acoFlowShop.solveProblem();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Solves a Flow-Shop instance using Ant Colony Optimization.
+	 * 
+	 * @return Array representing a solution.
+	 */
 	public int[] solveProblem() {
+		System.out.println("INITIALIZING PHEROMONE MATRIX");
+		double initialPheromoneValue = ProblemConfiguration.MAXIMUM_PHEROMONE;
+		System.out.println("Initial pheromone value: " + initialPheromoneValue);
 		for (int i = 0; i < numberOfJobs; i++) {
 			for (int j = 0; j < numberOfJobs; j++) {
-				// TODO (cgavidia): Apply MAX-MIN policy for initial pheromone
-				pheromoneTrails[i][j] = ProblemConfiguration.MAXIMUM_PHEROMONE;
+				pheromoneTrails[i][j] = initialPheromoneValue;
 			}
 		}
 
 		int iteration = 0;
+		System.out.println("STARTING ITERATIONS");
+		System.out.println("Number of iterations: "
+				+ ProblemConfiguration.MAX_ITERATIONS);
+
 		while (iteration < ProblemConfiguration.MAX_ITERATIONS) {
-			initialize();
+			clearAntSolutions();
 			buildSolutions();
 			updatePheromoneTrails();
-			updateBestAnt();
+			updateBestSolution();
 			iteration++;
 		}
-		System.out.println("Best tour length: " + bestTourLength);
-		System.out.println("Best tour:" + bestTourAsString);
+		System.out.println("EXECUTION FINISHED");
+		System.out.println("Best schedule makespam: " + bestScheduleMakespan);
+		System.out.println("Best schedule:" + bestScheduleAsString);
 		return bestTour.clone();
 	}
 
+	/**
+	 * Updates pheromone trail values
+	 */
 	private void updatePheromoneTrails() {
+		System.out.println("UPDATING PHEROMONE TRAILS");
+
+		System.out.println("Performing evaporation on all edges");
+		System.out.println("Evaporation ratio: "
+				+ ProblemConfiguration.EVAPORATION);
+
 		for (int i = 0; i < numberOfJobs; i++) {
 			for (int j = 0; j < numberOfJobs; j++) {
 				double newValue = pheromoneTrails[i][j]
@@ -65,9 +103,12 @@ public class ACOFlowShop {
 			}
 		}
 
+		System.out.println("Depositing pheromone on Best Ant trail.");
 		Ant bestAnt = getBestAnt();
 		double contribution = ProblemConfiguration.Q
 				/ bestAnt.getSolutionMakespan(graph);
+		System.out.println("Contibution for best ant: " + contribution);
+
 		for (int i = 0; i < numberOfJobs; i++) {
 			double newValue = pheromoneTrails[bestAnt.getSolution()[i]][i]
 					+ contribution;
@@ -79,28 +120,42 @@ public class ACOFlowShop {
 		}
 	}
 
+	/**
+	 * Build a solution for every Ant in the Colony.
+	 */
 	private void buildSolutions() {
+		System.out.println("BUILDING ANT SOLUTIONS");
 		for (Ant ant : antColony) {
 			while (ant.getCurrentIndex() < numberOfJobs) {
 				int nextNode = ant.selectNextNode(pheromoneTrails, graph);
 				ant.visitNode(nextNode);
 			}
+			System.out.println("Original Solution > Makespan: "
+					+ ant.getSolutionMakespan(graph) + ", Schedule: "
+					+ ant.getSolutionAsString());
 			ant.improveSolution(graph);
-			if (ant.isValidSolution()) {
-				System.out.println("ant.solutionAsString(): "
-						+ ant.getSolutionAsString());
-			}
-
+			System.out.println("After Local Search > Makespan: "
+					+ ant.getSolutionMakespan(graph) + ", Schedule: "
+					+ ant.getSolutionAsString());
 		}
 	}
 
-	private void initialize() {
+	/**
+	 * Clears solution build for every Ant in the colony.
+	 */
+	private void clearAntSolutions() {
+		System.out.println("CLEARING ANT SOLUTIONS");
 		for (Ant ant : antColony) {
 			ant.setCurrentIndex(0);
 			ant.clear();
 		}
 	}
 
+	/**
+	 * Returns the best performing Ant in Colony
+	 * 
+	 * @return The Best Ant
+	 */
 	private Ant getBestAnt() {
 		Ant bestAnt = antColony[0];
 		for (Ant ant : antColony) {
@@ -112,27 +167,33 @@ public class ACOFlowShop {
 		return bestAnt;
 	}
 
-	private Ant updateBestAnt() {
+	/**
+	 * Selects the best solution found so far.
+	 * 
+	 * @return
+	 */
+	private void updateBestSolution() {
+		System.out.println("GETTING BEST SOLUTION FOUND");
 		Ant bestAnt = getBestAnt();
 		if (bestTour == null
-				|| bestTourLength > bestAnt.getSolutionMakespan(graph)) {
+				|| bestScheduleMakespan > bestAnt.getSolutionMakespan(graph)) {
 			bestTour = bestAnt.getSolution().clone();
-			bestTourLength = bestAnt.getSolutionMakespan(graph);
-			bestTourAsString = bestAnt.getSolutionAsString();
+			bestScheduleMakespan = bestAnt.getSolutionMakespan(graph);
+			bestScheduleAsString = bestAnt.getSolutionAsString();
 		}
-		return bestAnt;
+		System.out.println("Best solution so far > Makespan: "
+				+ bestScheduleMakespan + ", Schedule: " + bestScheduleAsString);
 	}
 
-	public static void main(String... args) {
-		try {
-			double[][] graph = getProblemGraphFromFile("/home/cptanalatriste/github/ACOFlowShop/src/flowshop_default.data");
-			ACOFlowShop acoFlowShop = new ACOFlowShop(graph);
-			acoFlowShop.solveProblem();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
+	/**
+	 * 
+	 * Reads a text file and returns a problem matrix.
+	 * 
+	 * @param path
+	 *            File to read.
+	 * @return Problem matrix.
+	 * @throws IOException
+	 */
 	public static double[][] getProblemGraphFromFile(String path)
 			throws IOException {
 		double graph[][] = null;
