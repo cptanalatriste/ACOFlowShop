@@ -1,7 +1,22 @@
 package pe.edu.pucp.ia.flowshop.util;
 
+/**
+ * Utilities methods for Flow-Shop problem solving.
+ * 
+ * @author Adrián Pareja (adrian@pareja.com)
+ * 
+ */
 public class FlowShopUtils {
 
+	/**
+	 * Gets the makespan for an Schedule.
+	 * 
+	 * @param schedule
+	 *            Schedule to evaluate.
+	 * @param jobInfo
+	 *            Problem graph.
+	 * @return Schedule makespan.
+	 */
 	public static double getScheduleMakespan(int[] schedule, double[][] jobInfo) {
 		int machines = jobInfo[0].length;
 		double[] machinesTime = new double[machines];

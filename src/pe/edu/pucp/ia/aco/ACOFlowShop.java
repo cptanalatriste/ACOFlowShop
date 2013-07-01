@@ -7,6 +7,12 @@ import java.util.LinkedList;
 
 import pe.edu.pucp.ia.aco.config.ProblemConfiguration;
 
+/**
+ * Appies the MAX-MIN Ant System algorithm to Flow-Shop Problem instance.
+ * 
+ * @author Carlos G. Gavidia (cgavidia@acm.org)
+ * 
+ */
 public class ACOFlowShop {
 
 	private double[][] graph;
@@ -69,6 +75,7 @@ public class ACOFlowShop {
 				+ ProblemConfiguration.MAX_ITERATIONS);
 
 		while (iteration < ProblemConfiguration.MAX_ITERATIONS) {
+			System.out.println("Current iteration: " + iteration);
 			clearAntSolutions();
 			buildSolutions();
 			updatePheromoneTrails();
@@ -125,7 +132,9 @@ public class ACOFlowShop {
 	 */
 	private void buildSolutions() {
 		System.out.println("BUILDING ANT SOLUTIONS");
+		int antCounter = 0;
 		for (Ant ant : antColony) {
+			System.out.println("Current ant: " + antCounter);
 			while (ant.getCurrentIndex() < numberOfJobs) {
 				int nextNode = ant.selectNextNode(pheromoneTrails, graph);
 				ant.visitNode(nextNode);
@@ -137,6 +146,7 @@ public class ACOFlowShop {
 			System.out.println("After Local Search > Makespan: "
 					+ ant.getSolutionMakespan(graph) + ", Schedule: "
 					+ ant.getSolutionAsString());
+			antCounter++;
 		}
 	}
 

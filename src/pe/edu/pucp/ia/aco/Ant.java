@@ -6,6 +6,13 @@ import java.util.Random;
 
 import pe.edu.pucp.ia.flowshop.util.FlowShopUtils;
 
+/**
+ * An Ant that belongs to Colony in the context of ACO.
+ * 
+ * @author Carlos G. Gavidia (cgavidia@acm.org)
+ * @author Adrián Pareja (adrian@pareja.com)
+ * 
+ */
 public class Ant {
 
 	private int currentIndex = 0;
@@ -17,21 +24,43 @@ public class Ant {
 		this.visited = new boolean[graphLenght];
 	}
 
+	/**
+	 * Mark a node as visited.
+	 * 
+	 * @param visitedNode
+	 *            Visited node.
+	 */
 	public void visitNode(int visitedNode) {
 		solution[currentIndex] = visitedNode;
 		visited[visitedNode] = true;
 		currentIndex++;
 	}
 
+	/**
+	 * Verifies if a node is visited.
+	 * 
+	 * @param node
+	 *            Node to verify.
+	 * @return True if the node is already visited. False otherwise.
+	 */
 	public boolean isNodeVisited(int node) {
 		return visited[node];
 	}
 
+	/**
+	 * Selects the next node to move while building a solution,
+	 * 
+	 * @param trails
+	 *            Pheromone matrix.
+	 * @param graph
+	 *            Problem graph.
+	 * @return Next node to move.
+	 */
 	public int selectNextNode(double[][] trails, double[][] graph) {
 		int nextNode = 0;
 		Random random = new Random();
-		// Probability Setting from Paper
 		double randomValue = random.nextDouble();
+		// Probability Setting from Paper
 		double bestChoiceProbability = ((double) graph.length - 4)
 				/ graph.length;
 		if (randomValue < bestChoiceProbability) {
@@ -46,7 +75,7 @@ public class Ant {
 			}
 			return nextNode;
 		} else {
-			double probabilities[] = getProbabilities(trails, graph);
+			double probabilities[] = getProbabilities(trails);
 			double r = randomValue;
 			double total = 0;
 			for (int i = 0; i < graph.length; i++) {
@@ -60,11 +89,24 @@ public class Ant {
 		return nextNode;
 	}
 
+	/**
+	 * Gets solution build as an int array.
+	 * 
+	 * @return Ant's solution.
+	 */
 	public int[] getSolution() {
 		return solution;
 	}
 
-	private double[] getProbabilities(double[][] trails, double[][] graph) {
+	/**
+	 * Gets a probabilities vector, containing probabilities to move to each
+	 * node according to pheromone matrix.
+	 * 
+	 * @param trails
+	 *            Pheromone matrix.
+	 * @return Probabilities vector.
+	 */
+	private double[] getProbabilities(double[][] trails) {
 		double probabilities[] = new double[solution.length];
 
 		double denom = 0.0;
@@ -86,6 +128,9 @@ public class Ant {
 		return probabilities;
 	}
 
+	/**
+	 * Resets the visited vector.
+	 */
 	public void clear() {
 		for (int i = 0; i < visited.length; i++) {
 			visited[i] = false;
@@ -93,18 +138,42 @@ public class Ant {
 		}
 	}
 
+	/**
+	 * Sets the current index for the Ant.
+	 * 
+	 * @param currentIndex
+	 *            Current index.
+	 */
 	public void setCurrentIndex(int currentIndex) {
 		this.currentIndex = currentIndex;
 	}
 
+	/**
+	 * Gets the current index for the Ant.
+	 * 
+	 * @return Current index.
+	 */
 	public int getCurrentIndex() {
 		return currentIndex;
 	}
 
+	/**
+	 * Gets the makespan of the Ants built solution.
+	 * 
+	 * @param graph
+	 *            Problem graph.
+	 * @return Makespan of the solution.
+	 */
 	public double getSolutionMakespan(double[][] graph) {
 		return FlowShopUtils.getScheduleMakespan(solution, graph);
 	}
 
+	/**
+	 * Applies local search to the solution built.
+	 * 
+	 * @param graph
+	 *            Problem graph.
+	 */
 	public void improveSolution(double[][] graph) {
 		double makespan = getSolutionMakespan(graph);
 
@@ -163,22 +232,16 @@ public class Ant {
 		solution = localSolutionJobs;
 	}
 
+	/**
+	 * Gets th solution built as a String.
+	 * 
+	 * @return Solution as a String.
+	 */
 	public String getSolutionAsString() {
 		String solutionString = new String();
 		for (int i = 0; i < solution.length; i++) {
 			solutionString = solutionString + " " + solution[i];
 		}
 		return solutionString;
-	}
-
-	public boolean isValidSolution() {
-		boolean isValid = true;
-		for (int i = 0; i < visited.length; i++) {
-			if (visited[i] == false) {
-				throw new RuntimeException("Incomplete tour: "
-						+ getSolutionAsString());
-			}
-		}
-		return isValid;
 	}
 }
