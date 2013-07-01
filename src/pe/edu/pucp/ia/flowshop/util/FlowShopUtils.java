@@ -4,6 +4,7 @@ package pe.edu.pucp.ia.flowshop.util;
  * Utilities methods for Flow-Shop problem solving.
  * 
  * @author Adrián Pareja (adrian@pareja.com)
+ * @author Carlos G. Gavidia (cgavidia@acm.org)
  * 
  */
 public class FlowShopUtils {

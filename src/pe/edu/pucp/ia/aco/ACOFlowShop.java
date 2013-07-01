@@ -5,12 +5,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import javax.swing.UnsupportedLookAndFeelException;
+
 import pe.edu.pucp.ia.aco.config.ProblemConfiguration;
+import pe.edu.pucp.ia.aco.view.SchedulingFrame;
 
 /**
  * Appies the MAX-MIN Ant System algorithm to Flow-Shop Problem instance.
  * 
  * @author Carlos G. Gavidia (cgavidia@acm.org)
+ * @author Adrián Pareja (adrian@pareja.com)
  * 
  */
 public class ACOFlowShop {
@@ -49,9 +53,32 @@ public class ACOFlowShop {
 			double[][] graph = getProblemGraphFromFile(fileDataset);
 			ACOFlowShop acoFlowShop = new ACOFlowShop(graph);
 			acoFlowShop.solveProblem();
-		} catch (IOException e) {
+			acoFlowShop.showSolution();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void showSolution() throws ClassNotFoundException,
+			InstantiationException, IllegalAccessException,
+			UnsupportedLookAndFeelException {
+		for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager
+				.getInstalledLookAndFeels()) {
+			if ("Nimbus".equals(info.getName())) {
+				javax.swing.UIManager.setLookAndFeel(info.getClassName());
+				break;
+			}
+		}
+
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				SchedulingFrame frame = new SchedulingFrame();
+				frame.setVisible(true);
+				frame.setSolutionMakespan(bestScheduleMakespan);
+				frame.setProblemGraph(graph);
+				frame.setSolution(bestTour);
+			}
+		});
 	}
 
 	/**

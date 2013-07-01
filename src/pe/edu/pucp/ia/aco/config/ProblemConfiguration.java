@@ -1,5 +1,11 @@
 package pe.edu.pucp.ia.aco.config;
 
+/**
+ * Parameter settings for the algorithm.
+ * 
+ * @author Adrián Pareja (adrian@pareja.com)
+ * @author Carlos G. Gavidia (cgavidia@acm.org)
+ */
 public class ProblemConfiguration {
 
 	public static final String FILE_DATASET = "/home/cptanalatriste/github/ACOFlowShop/src/flowshop_default.data";
@@ -11,5 +17,5 @@ public class ProblemConfiguration {
 	public static final int Q = 1;
 	public static final double MAXIMUM_PHEROMONE = 1.0;
 	public static final double MINIMUM_PHEROMONE = MAXIMUM_PHEROMONE / 5;
-	public static final int MAX_ITERATIONS = 20000;
+	public static final int MAX_ITERATIONS = 10000;
 }
