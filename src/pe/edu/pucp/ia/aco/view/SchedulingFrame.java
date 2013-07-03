@@ -47,15 +47,17 @@ public class SchedulingFrame extends javax.swing.JFrame {
 
 	public void paint(Graphics g) {
 		super.paint(g);
-
+		
+		double solutionAux = solutionMakespan;
+		
 		int red = 0;
 		int green = 0;
 		int blue = 0;
 
 		int factor = 1;
-		while (solutionMakespan > this.getWidth()) {
+		while (solutionAux > this.getWidth()) {
 			factor = factor * 2;
-			solutionMakespan = solutionMakespan / 2;
+			solutionAux = solutionAux / 2;
 		}
 
 		int posT = 20;

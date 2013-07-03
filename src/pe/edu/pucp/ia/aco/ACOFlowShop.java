@@ -89,10 +89,11 @@ public class ACOFlowShop {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				SchedulingFrame frame = new SchedulingFrame();
-				frame.setVisible(true);
 				frame.setSolutionMakespan(bestScheduleMakespan);
 				frame.setProblemGraph(graph);
 				frame.setSolution(bestTour);
+				frame.setVisible(true);
+
 			}
 		});
 	}

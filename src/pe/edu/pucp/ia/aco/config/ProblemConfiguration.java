@@ -8,7 +8,7 @@ package pe.edu.pucp.ia.aco.config;
  */
 public class ProblemConfiguration {
 
-	public static final String FILE_DATASET = "/home/cptanalatriste/github/ACOFlowShop/src/flowshopp_100x10.data";
+	public static final String FILE_DATASET = "/home/cptanalatriste/github/ACOFlowShop/src/flowshop_75x20.data";
 
 	public static final int NUMBER_OF_ANTS = 1;
 	public static final double ALPHA = 1;
