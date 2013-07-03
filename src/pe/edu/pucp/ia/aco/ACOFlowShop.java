@@ -34,6 +34,15 @@ public class ACOFlowShop {
 	public ACOFlowShop(double[][] graph) {
 		this.numberOfJobs = graph.length;
 		System.out.println("Number of Jobs: " + numberOfJobs);
+
+		int numberOfMachines = graph[0].length;
+		for (int i = 1; i < numberOfJobs; i++) {
+			if (graph[i].length != numberOfMachines) {
+				throw new RuntimeException("The input file is incorrect");
+			}
+		}
+		System.out.println("Number of Machines: " + numberOfMachines);
+
 		this.numberOfAnts = ProblemConfiguration.NUMBER_OF_ANTS;
 		System.out.println("Number of Ants in Colony: " + numberOfAnts);
 		this.graph = graph;
